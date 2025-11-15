@@ -14,7 +14,7 @@
 #include <vector>
 #include <random>
 
-const std::string BOT_TOKEN = "MTQzNzYyNjA1NzE0NTU4NTY4NA.GjRbsJ.kuINog3WPGDeMkj9PkxA8-a6-8ynZL5-b_tiUU";
+const std::string BOT_TOKEN = std::getenv("DISCORD_TOKEN");
 
 int main() {
     srand(std::time(nullptr));
@@ -148,6 +148,41 @@ int main() {
             event.reply(msg);
         }
         else if (event.command.get_command_name() == "criar_missoes"){
+            std::string text = std::get<std::string>(event.get_parameter("text"));
+            std::ifstream m("missoes.json");
+            nlohmann::json json;
+            m >> json;
+
+            json["missoes"].push_back({
+                {"id", std::to_string(event.command.usr.id)},
+                {"Nome", event.command.usr.format_username()},
+                {"missao", text},
+            });
+            std::ofstream o("missoes.json");
+            o << json.dump(4);
+            event.reply("Missão criada com sucesso!" + baby_think.get_mention());
+        }
+        else if (event.command.get_command_name() == "missao"){
+            std::ifstream m("missoes.json");
+            nlohmann::json json;
+            m >> json;
+
+            if(json["missoes"].empty()){
+                event.reply("Não há nenhuma missão registrada, seja o primeiro a colocar uma!");
+                return;
+            }
+
+            int index = rand() % json["missoes"].size();
+            auto ms = json["missoes"][index];
+
+            std::ofstream o("missoes.json");
+            o << json.dump(4);
+
+            std::string text = "**missão tirada**\n" "**Missão:**" + ms["missao"].get<std::string>();
+            event.reply(text);
+
+            bot.direct_message_create(event.command.usr.id, dpp::message(text));
+            json["missoes"].erase(json["missoes"].begin() + index);
         }
         else if (event.command.get_command_name() == "reputacao") {
             dpp::snowflake user;
@@ -442,7 +477,8 @@ int main() {
             bot.global_command_create(dpp::slashcommand("entrar-call", "entra na call para falar coisas bizonhas", bot.me.id));
             bot.global_command_create(dpp::slashcommand("sair-call", "sai da call que ele esta", bot.me.id));
             bot.global_command_create(dpp::slashcommand("oraculo-medonho", "da uma profecia (juro que nao eh uma frase montada aleatoriamente)", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("criar_missoes", "resolvas missoes para granhar", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("criar_missoes", "envie uma missao para alguem fazer", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("missao", "pegue uma missao e faca"));
 
             bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_listening, "⤕ 21st century schizoid man "));
         }
