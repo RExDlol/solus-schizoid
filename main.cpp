@@ -478,7 +478,7 @@ int main() {
             bot.global_command_create(dpp::slashcommand("sair-call", "sai da call que ele esta", bot.me.id));
             bot.global_command_create(dpp::slashcommand("oraculo-medonho", "da uma profecia (juro que nao eh uma frase montada aleatoriamente)", bot.me.id));
             bot.global_command_create(dpp::slashcommand("criar_missoes", "envie uma missao para alguem fazer", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("missao", "pegue uma missao e faca"));
+            bot.global_command_create(dpp::slashcommand("missao", "pegue uma missao e faca", bot.me.id));
 
             bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_listening, "⤕ 21st century schizoid man "));
         }
